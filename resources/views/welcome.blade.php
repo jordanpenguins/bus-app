@@ -27,6 +27,4 @@
 
 
     </div>
-
-
 </x-front-layout>

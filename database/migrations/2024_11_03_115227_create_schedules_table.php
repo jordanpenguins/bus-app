@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('bus_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('route_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->dateTime('departure_time');
-            $table->dateTime('arrival_time');
+            $table->time('departure_time');
+            $table->time('arrival_time');
             $table->dateTime('scheduled_date');
             $table->decimal('price', 8, 2);
             $table->timestamps();

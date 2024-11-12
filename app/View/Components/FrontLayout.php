@@ -21,6 +21,6 @@ class FrontLayout extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.front-layout');
+        return view('layouts.front');
     }
 }

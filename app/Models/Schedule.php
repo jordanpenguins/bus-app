@@ -15,9 +15,9 @@ class Schedule extends Model
     protected $fillable = [
         'bus_id',
         'route_id',
-        'depature_time',
+        'departure_time',
         'arrival_time',
-        'schedule_date',
+        'scheduled_date',
         'price'
     ];
 
@@ -30,7 +30,7 @@ class Schedule extends Model
         return $this -> belongsTo(Route:: class);
     }
 
-    public function buses(){
+    public function bus(){
         return $this -> belongsTo(Bus::class);
     }
 
