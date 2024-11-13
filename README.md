@@ -26,5 +26,15 @@ $schedule = \App\Models\Schedule::create([
     'price' => 15.00
 ]);
 
+// Create a seats
+
+for ($i = 1; $i <= 27; $i++) {
+    \App\Models\Seat::create([
+        'bus_id' => 1,
+        'seat_number' => $i,
+        'status' => 'available',
+    ]);
+}
+
 
 ```
