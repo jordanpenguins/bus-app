@@ -10,49 +10,43 @@
                         </h2>
                     </x-slot>
                     <div>
-                        <!-- Iterate through all the depature times -->
-                        {{-- @foreach ($seats as $seat) 
-                            <h1>seats
-                        
-                        @endforeach --}}
-                        <h2>8AM</h2>
-                        <h2>10AM</h2>
+                        <!-- Iterate through the schedule list to display other depature times that fall on the same date -->
+                        @foreach ($schedule as $schedule)
+                            <x-nav-link :href="route('search', [
+                                'ticket_type' => request('ticket_type'),
+                                'departure_date' => request('departure_date'),
+                                'departure_route' => request('departure_route'),
+                                'departure_time' => $schedule->departure_time,
+                                'return_route' => request('return_route'),
+                                'return_date' => request('return_date'),
+                                'passenger_qty' => request('passenger_qty')
+                                
+                                ])">
+                                <!-- How do I put in the exisitng query strings parameters into the next following link -->
+                                {{ $schedule -> departure_time }}
+                            </x-nav-link>
+                        @endforeach
+
                     </div>
 
-                
+                    <div class="mt-5 mb-5">
+                        Selected Time: {{ $firstDepartSchedule -> departure_time }}
+                    </div>
             
                     <div class="flex flex-row justify-center items-center ">
-                        <div class="grid grid-cols-2 gap-4 ">
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                        </div>
-                        <div class="grid grid-cols-1 gap-4">
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
-                            <div class="flex justify-center items-center"><img src= "{{ asset('seat.png') }}" alt="bus" class="h-10 w-10 object-cover"></div>
+                        <div class="grid grid-cols-3 gap-4 custom-grid-gap ">
+                            @foreach ($departAvailability as $seat)
+                                <div class="flex justify-center items-center">
+                                    <label>
+                                        <input type="checkbox" name="seats[]" value="{{ $seat->id }}" class="hidden peer {{ $seat->available ? '' : 'disabled'}}">
+                                        <img src="{{ asset('seat.png') }}" alt="seat" class="unavailable-seat h-10 w-10 object-cover peer-checked:border-blue-500 peer-checked:border-4  ">
+                                    </label>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
-
-
+                    <!-- I have to now check if the return date and time exist and then pass it back into the controller -->
+                    <!-- This is so that if return date no longer exist, the next following page will be the checkout page -->
                 </div>
             </div>
         </div>
