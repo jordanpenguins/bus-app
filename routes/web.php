@@ -20,8 +20,11 @@ Route::get('/dashboard', function () {
 
 Route::get('/purchase', [PurchaseController::class, 'index'])->middleware(['auth', 'verified'])->name('purchase');
 
-Route::get('/search', [PurchaseController::class, 'schedule'])->middleware(['auth', 'verified'])->name('search');
+Route::get('/depart-schedule', [PurchaseController::class, 'schedule'])->middleware(['auth', 'verified'])->name('search');
 
+Route::get('/return-shedule', [PurchaseController::class, 'schedule']) -> middleware(['auth', 'verified'])->name('return-search');
+
+Route::get('/checkout', [PurchaseController::class, 'checkout']) ->middleware(['auth', 'verified'])->name('checkout');
 
 
 
