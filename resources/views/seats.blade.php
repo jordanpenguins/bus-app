@@ -45,8 +45,42 @@
                             @endforeach
                         </div>
                     </div>
-                    <!-- I have to now check if the return date and time exist and then pass it back into the controller -->
-                    <!-- This is so that if return date no longer exist, the next following page will be the checkout page -->
+                    
+
+                    <!-- This is so that if return date does not exist, then redirect them to the next checkout page -->
+                    @if ($returnSchedule) 
+                        <x-nav-link :href="route('search', [
+                                'ticket_type' => request('ticket_type'),
+                                'departure_date' => request('departure_date'),
+                                'departure_route' => request('departure_route'),
+                                'departure_time' => $firstDepartSchedule->departure_time,
+                                'selected_departure_time' => $firstDepartSchedule->departure_time,
+                                'return_route' => request('return_route'),
+                                'return_date' => request('return_date'),
+                                'passenger_qty' => request('passenger_qty'),
+                                ])">
+                                <!-- How do I put in the exisitng query strings parameters into the next following link -->
+                                Next
+                        </x-nav-link>
+
+                    @else 
+                        <x-nav-link :href="route('checkout', [
+                                'ticket_type' => request('ticket_type'),
+                                'departure_date' => request('departure_date'),
+                                'departure_route' => request('departure_route'),
+                                'departure_time' => $schedule->departure_time,
+                                'selected_departure_time' => $schedule->departure_time,
+                                'return_route' => request('return_route'),
+                                'return_date' => request('return_date'),
+                                'passenger_qty' => request('passenger_qty'),
+                                ])">
+                                <!-- How do I put in the exisitng query strings parameters into the next following link -->
+                                Next
+                        </x-nav-link>
+                    @endif
+
+                    
+
                 </div>
             </div>
         </div>
