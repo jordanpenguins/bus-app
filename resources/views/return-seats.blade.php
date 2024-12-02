@@ -32,7 +32,7 @@
                         Selected Return Time: {{ $firstReturnSchedule -> departure_time }}
                     </div>
             
-                    <div class="flex flex-row justify-center items-center">
+                    <div class="flex flex-row justify-center items-center bg-slate-100 p-3 ">
                         <div class="grid grid-cols-3 gap-4 custom-grid-gap">
                             @foreach ($returnAvailability as $seat)
                                 <div class="flex justify-center items-center">
@@ -47,13 +47,15 @@
 
                     <!-- next page will bring you to the checkout page for the order summary --> 
                     <!-- TODO -->
-                    <x-nav-link :href="route('checkout', [
+                    <x-nav-link id ="next-link" :href="route('checkout-page', [
                                 'ticket_type' => request('ticket_type'),
                                 'departure_date' => request('departure_date'),
                                 'departure_route' => request('departure_route'),
                                 'departure_time' => $firstDepartSchedule->departure_time,
+                                'departing_seats' => request('departing_seats'), 
+                                'returning_seats' => implode(',', request('returning_seats', [])),
                                 'selected_departure_time' => $firstDepartSchedule->departure_time,
-                                'return_time' => $firstReturnSchedule -> departure_time,
+                                'return_time' => $firstReturnSchedule ->departure_time,
                                 'return_route' => request('return_route'),
                                 'return_date' => request('return_date'),
                                 'passenger_qty' => request('passenger_qty'),
@@ -67,4 +69,30 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const nextLink = document.getElementById('next-link');
+            const checkboxes = document.querySelectorAll('input[name="seats[]"]');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateLink);
+            });
+
+            // for every changes call the update link 
+            function updateLink() {
+                // get all the checkboxes, filter the seats which are checked, display the list of seats into an rray
+                const selectedSeats = Array.from(checkboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.value);
+
+
+                const url = new URL(nextLink.href);
+                // concatenate selectedSeats into a string and insert them into the url
+                url.searchParams.set('returning_seats', selectedSeats.join(','));
+
+                nextLink.href = url.toString(); // convert the url into the string
+            }
+        });
+    </script>
 </x-app-layout>

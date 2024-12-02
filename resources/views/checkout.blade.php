@@ -20,23 +20,34 @@
                         <div class="mb-2">
                             <span class="font-semibold">Passenger Quantity:</span> {{ $passengerQty }}
                         </div>
+                        <div class="mb-2">
+                            <span class="font-semibold">Seats:</span> {{ $departingSeats }}
+                        </div>
 
-                        {{-- @if ($returnSchedule)
-                        <!-- Add a divider -->
-                        <hr class="my-4 border-gray-300 dark:border-gray-700">
+                        
+                        
+
+                        @if ($returnSchedule)
+                            <!-- Add a divider -->
+                            <hr class="my-4 border-gray-300 dark:border-gray-700">
+                            <div class="mb-2">
+                                <span class="font-semibold">Route:</span> {{ $returnRoute->origin }} to {{ $returnRoute ->destination }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="font-semibold">Return Time:</span> {{ $returnTime }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="font-semibold">Return Date:</span> {{ $returnDate }}
+                            </div>
+                            <div class="mb-2">
+                                <span class="font-semibold">Passenger Quantity:</span> {{ $passengerQty }}
+                            </div>
+                        @endif
+
                         <div class="mb-2">
-                            <span class="font-semibold">Route:</span> {{ $returnRoute->origin }} to {{ $returnRoute ->destination }}
+                            <span class="font-semibold">Total Price:</span> {{ $totalPrice }}
                         </div>
-                        <div class="mb-2">
-                            <span class="font-semibold">Depart Time:</span> {{ DepartureTime }}
-                        </div>
-                        <div class="mb-2">
-                            <span class="font-semibold">Depart Date:</span> {{ $departureDate }}
-                        </div>
-                        <div class="mb-2">
-                            <span class="font-semibold">Passenger Quantity:</span> {{ $passengerQty }}
-                        </div>
-                        @endif --}}
+
 
                         <!-- display the return information if it exist -->
                     </div>

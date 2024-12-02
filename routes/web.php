@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\StripeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,7 +25,23 @@ Route::get('/depart-schedule', [PurchaseController::class, 'schedule'])->middlew
 
 Route::get('/return-shedule', [PurchaseController::class, 'schedule']) -> middleware(['auth', 'verified'])->name('return-search');
 
-Route::get('/checkout', [PurchaseController::class, 'checkout']) ->middleware(['auth', 'verified'])->name('checkout');
+Route::get('/checkout-page', [PurchaseController::class, 'checkout']) ->middleware(['auth', 'verified'])->name('checkout-page');
+
+Route::get('/checkout', [StripeController::class, 'checkout']) ->middleware(['auth', 'verified'])->name('checkout');
+
+// checkout success 
+Route::get('/checkout-success', [StripeController::class, 'success']) ->middleware(['auth', 'verified'])->name('checkout-success');
+
+// checkout cancel
+Route::get('/checkout-cancel', [StripeController::class, 'cancel']) ->middleware(['auth', 'verified'])->name('checkout-cancel');
+
+
+
+
+
+
+
+
 
 
 

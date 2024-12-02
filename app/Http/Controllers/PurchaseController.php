@@ -20,12 +20,14 @@ class PurchaseController extends Controller
         $departureRoute = $request-> departure_route;
         $departureTime = $request -> departure_time;
         $selectedDepartureTime = $request ->selected_departure_time;
+        $departingSeats = $request -> departing_seats;
 
         $returnRoute = $request->return_route;
         $returnDate = $request -> return_date;
         $returnTime = $request -> return_time;
         $selectedReturnTime = $request -> selected_return_time;
         $passengerQty = $request -> passenger_qty;
+        $returnSeats = $request -> returning_seats;
         $returnSchedule = null;
         
 
@@ -42,6 +44,8 @@ class PurchaseController extends Controller
             // handle case where route is not found
             return;
         }   
+
+        $departureRouteName = Route::where('id',$departureRoute)->first();
         
         if ($departureTime) {
             $firstDepartSchedule = $scheduleQuery -> whereTime('departure_time', $departureTime)->get()->first();
@@ -56,11 +60,13 @@ class PurchaseController extends Controller
         // check if departure and return exist 
         if ($ticketType === 'two_way') {
             Log::info($returnRoute);
+
             $routes = Route::find($returnRoute);
             if ($routes->count() <= 0) {
                 // handle case where route is not found
                 return;
             }
+            $returnRouteName = Route::where('id',$returnRoute)->first();
             $formattedReturnDate = date("Y-m-d", strtotime($returnDate));
             $returnScheduleQuery = Schedule::where('route_id', $routes->id)
                                 ->whereDate('scheduled_date', $formattedReturnDate);
@@ -77,23 +83,24 @@ class PurchaseController extends Controller
             } else {
                 $firstReturnSchedule = $returnSchedule -> first();
             }
-
+            
             $returnAvailability = $this->checkSeatAvailability($firstReturnSchedule);
+            Log::info($returnAvailability);
             if ($selectedDepartureTime) {
-                return view ('return-seats', compact('schedule','returnSchedule','firstReturnSchedule','firstDepartSchedule','returnAvailability','departAvailability','passengerQty','selectedReturnTime'));
+                return view ('return-seats', compact('schedule','returnSchedule','firstReturnSchedule','firstDepartSchedule','returnAvailability','departAvailability','passengerQty','selectedReturnTime','departureRouteName','returnRouteName'));
 
             } else {
-                return view ('seats', compact('schedule','returnSchedule','firstReturnSchedule','firstDepartSchedule','returnAvailability','departAvailability','passengerQty','returnSchedule'));
+                return view ('seats', compact('schedule','returnSchedule','firstReturnSchedule','firstDepartSchedule','returnAvailability','departAvailability','passengerQty','returnSchedule','departureRouteName','returnRouteName'));
 
             }
             
 
         }
 
-        Log::info($schedule);
+
 
         // then display the available seats 
-        return view ('seats', compact('schedule','firstDepartSchedule','departAvailability','passengerQty','returnSchedule'));
+        return view ('seats', compact('schedule','firstDepartSchedule','departAvailability','passengerQty','returnSchedule','departureRouteName','departingSeats'));
 
     }
 
@@ -126,12 +133,20 @@ class PurchaseController extends Controller
         $departureRoute = $request-> departure_route;
         $departureTime = $request -> departure_time;
         $selectedDepartureTime = $request -> selected_departure_time;
+        // departing seats
+        $departingSeats = $request -> departing_seats; 
+        
 
         $returnRoute = $request->return_route;
         $returnDate = $request -> return_date;
         $returnTime = $request -> return_time;
         $selectedReturnTime = $request -> selected_return_time;
         $passengerQty = $request -> passenger_qty;
+        // returning seats
+        $returningSeats = $request -> returning_seats;
+        $returnPrice = 195.00;
+        $returnSchedule = null;
+        $returnAvailability = null;
 
     
         // Retrieve the departure schedule and availability
@@ -144,8 +159,11 @@ class PurchaseController extends Controller
         Log::info($departureSchedule);
 
         $departAvailability = $this->checkSeatAvailability($departureSchedule);
-        $returnSchedule = null;
-        $returnAvailability = null;
+        
+        // calculate the total price
+        Log::info($passengerQty);
+        $totalPrice = (int)$passengerQty * ($departureSchedule -> price);
+
         if ($ticketType === 'two_way') {
             $formattedReturnDate = date("Y-m-d", strtotime($returnDate));
             $returnSchedule = Schedule::where('route_id', $returnRoute)
@@ -153,21 +171,30 @@ class PurchaseController extends Controller
                 ->whereTime('departure_time', $returnTime)
                 ->first();
             $returnAvailability = $this->checkSeatAvailability($returnSchedule);
+            $returnRoute = Route::where('id',$returnRoute)->first();
+
+
+            $totalPrice = (int)$passengerQty * $returnPrice;
+            
+
         }
 
         $departureRoute = Route::where('id',$departureRoute)->first();
 
+        
+
+        // return price should be fixed RM195 OR 60SGD 
+
+
+
         return view('checkout', compact(
         'ticketType', 'departureDate', 'departureRoute', 'departureTime', 'selectedDepartureTime',
         'returnRoute', 'returnDate', 'returnTime', 'passengerQty',
-        'departureSchedule', 'departAvailability', 'returnSchedule', 'returnAvailability'
+        'departureSchedule', 'departAvailability', 'returnSchedule', 'returnAvailability', 'departingSeats','returningSeats','totalPrice',
         ));
 
 
     }
-
-    
-
 
 
 
