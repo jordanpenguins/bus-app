@@ -16,10 +16,9 @@ class StripeController extends Controller
 
     public function checkout(Request $request) {
 
-
         $stripePriceId = 'price_1QRAnNHrbBfQ3SJwye8gCgKf';
  
-        $quantity = 1;
+        $quantity = (int)$request -> passenger_qty;
      
         return $request->user()->checkout([$stripePriceId => $quantity], [
             'success_url' => route('checkout-success'),

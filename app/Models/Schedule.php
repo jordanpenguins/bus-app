@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class Schedule extends Model
 {
 
@@ -32,6 +33,10 @@ class Schedule extends Model
 
     public function bus(){
         return $this -> belongsTo(Bus::class);
+    }
+
+    public function prices() {
+        return $this -> hasMany(Price::class);
     }
 
 

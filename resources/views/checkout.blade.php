@@ -54,6 +54,15 @@
                     <div>
                         <h1 class="font-bold text-2xl"> Payment Method: </h1>
 
+                    
+                        <div class ="mt-5">
+                            <form action = "{{ route('checkout') }}" method = "POST">
+                                @csrf
+                                <input type ="hidden" name="passenger_qty" value = "{{ $passengerQty }}">
+                                <button type="submit" href="{{ route('checkout') }}" class="p-5 bg-lime-400 rounded">Checkout Now</a>
+                            </form>
+                        </div>
+
                     </div>
                 
                 </div>

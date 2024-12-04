@@ -8,6 +8,9 @@ use App\Models\Seat;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Stripe\Price;
+use Stripe\Stripe;
+use Illuminate\Support\Facades\Response;
 
 class PurchaseController extends Controller
 {
@@ -156,13 +159,23 @@ class PurchaseController extends Controller
         ->whereTime('departure_time', $selectedDepartureTime)
         ->first();
 
-        Log::info($departureSchedule);
+        // Log::info($departureSchedule);
 
         $departAvailability = $this->checkSeatAvailability($departureSchedule);
         
         // calculate the total price
-        Log::info($passengerQty);
-        $totalPrice = (int)$passengerQty * ($departureSchedule -> price);
+        Log::info($departureSchedule);
+      
+        if ((int)$passengerQty > 0) {
+            $adultPrice = $departureSchedule -> prices() -> where('type','adult') -> first() ;
+            $totalAdultPrice = $this-> getProductPrice($adultPrice->priceID);
+
+
+            $totalPrice = strtoupper($totalAdultPrice -> currency) . (string) (number_format((int)$passengerQty * ($totalAdultPrice -> amount / 100),2)) ;
+        }
+
+        // child ticket (future implementation)
+        
 
         if ($ticketType === 'two_way') {
             $formattedReturnDate = date("Y-m-d", strtotime($returnDate));
@@ -173,7 +186,7 @@ class PurchaseController extends Controller
             $returnAvailability = $this->checkSeatAvailability($returnSchedule);
             $returnRoute = Route::where('id',$returnRoute)->first();
 
-
+            //calculate the total price for return
             $totalPrice = (int)$passengerQty * $returnPrice;
             
 
@@ -204,6 +217,18 @@ class PurchaseController extends Controller
         $routes = Route::all();
         return view ('purchase', compact('routes'));
     
+    }
+
+    public function getProductPrice($priceId){
+        // Fetch the price details
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+        $price =  Price::retrieve($priceId);
+        Log::info($price);
+
+        $amount = $price -> unit_amount;
+        $currency = $price -> currency;
+        return (object) ['amount' => $amount, 'currency' => $currency];
+        
     }
 
 

@@ -27,7 +27,7 @@ Route::get('/return-shedule', [PurchaseController::class, 'schedule']) -> middle
 
 Route::get('/checkout-page', [PurchaseController::class, 'checkout']) ->middleware(['auth', 'verified'])->name('checkout-page');
 
-Route::get('/checkout', [StripeController::class, 'checkout']) ->middleware(['auth', 'verified'])->name('checkout');
+Route::post('/checkout', [StripeController::class, 'checkout']) ->middleware(['auth', 'verified'])->name('checkout');
 
 // checkout success 
 Route::get('/checkout-success', [StripeController::class, 'success']) ->middleware(['auth', 'verified'])->name('checkout-success');
