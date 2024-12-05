@@ -53,14 +53,19 @@
                                 </div>
                             @endforeach
                         </div>
+
+                        
+
                     </div>
+
+                    <div class ="mt-5 p-3 border-red-700 bg-red-200 text-red-600 hidden" id="message-label"> </div>
 
                 
                     
 
                     <!-- This is so that if return date does not exist, then redirect them to the next checkout page -->
                     @if ($returnSchedule) 
-                        <x-nav-link id="next-link" :href="route('search', [
+                        <x-nav-link class="hidden" id="next-link" :href="route('search', [
                                 'ticket_type' => request('ticket_type'),
                                 'departure_date' => request('departure_date'),
                                 'departure_route' => request('departure_route'),
@@ -76,7 +81,7 @@
                         </x-nav-link>
 
                     @else 
-                        <x-nav-link id="next-link" :href="route('checkout-page', [
+                        <x-nav-link  class="hidden" id="next-link" :href="route('checkout-page', [
                                 'ticket_type' => request('ticket_type') ,
                                 'departure_date' => request('departure_date'),
                                 'departure_route' => request('departure_route'),
@@ -103,6 +108,8 @@
             
             const nextLink = document.getElementById('next-link');
             const checkboxes = document.querySelectorAll('input[name="seats[]"]');
+            var messageLabel = document.getElementById('message-label');
+            var maxAllowed = {{ $passengerQty }} ;
 
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', updateLink);
@@ -122,18 +129,51 @@
 
                 nextLink.href = url.toString(); // convert the url into the string
             }
+
+            checkboxes.forEach(function(checkbox){
+                checkbox.addEventListener('change',function(){
+                    var checkedCount = document.querySelectorAll('input[type="checkbox"]:checked').length;
+                    if (checkedCount > maxAllowed) {
+                        this.checked = false;
+                    } 
+                    
+                    if (checkedCount === maxAllowed) {
+                        nextLink.classList.remove('hidden');
+                        messageLabel.classList.add('hidden');
+
+                        checkboxes.forEach(function(otherCheckbox){
+                            // disable other checkboxes if not checked to prevent other checkboxes from being selected
+                            if (!otherCheckbox.checked) {
+                                otherCheckbox.disabled = true;
+                                
+                            } 
+                        });
+                        
+                    
+
+                    } 
+                    else {
+                        nextLink.classList.add('hidden');
+                        messageLabel.classList.remove('hidden');
+                        
+                        checkboxes.forEach(function(otherCheckbox){
+                            otherCheckbox.disabled = false;
+                        
+
+                        });
+
+                        // update the label to clear the message
+                        updateLabel("Please select " + {{ $passengerQty }} + " passengers");
+
+                    }
+                });
+            }) 
+
+            function updateLabel(message) {
+                messageLabel.textContent = message;
+
+            }
         });
     </script>
-
-    
-    
-
-
-
-
-
-
-
-
 </x-app-layout>
 

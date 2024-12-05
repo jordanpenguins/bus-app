@@ -10,7 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Stripe\Price;
 use Stripe\Stripe;
+
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
 
 class PurchaseController extends Controller
 {
@@ -188,6 +190,7 @@ class PurchaseController extends Controller
 
             //calculate the total price for return
             $totalPrice = (int)$passengerQty * $returnPrice;
+            $totalPrice = strtoupper($totalAdultPrice -> currency) . (string) (number_format((int)$passengerQty * ($totalAdultPrice -> amount / 100),2)) ;
             
 
         }
@@ -197,14 +200,26 @@ class PurchaseController extends Controller
         
 
         // return price should be fixed RM195 OR 60SGD 
+        Session::put('checkout', [
+            'ticketType' => $ticketType,
+            'departureDate' => $departureDate,
+            'departureRoute' => $departureRoute,
+            'departureTime' => $departureTime,
+            'selectedDepartureTime' => $selectedDepartureTime,
+            'returnRoute' => $returnRoute,
+            'returnDate' => $returnDate,
+            'returnTime' => $returnTime,
+            'passengerQty' => $passengerQty,
+            'departureSchedule' => $departureSchedule,
+            'departAvailability' => $departAvailability,
+            'returnSchedule' => $returnSchedule,
+            'returnAvailability' => $returnAvailability,
+            'departingSeats' => $departingSeats,
+            'returningSeats' => $returningSeats,
+            'totalPrice' => $totalPrice,
+        ]);
 
-
-
-        return view('checkout', compact(
-        'ticketType', 'departureDate', 'departureRoute', 'departureTime', 'selectedDepartureTime',
-        'returnRoute', 'returnDate', 'returnTime', 'passengerQty',
-        'departureSchedule', 'departAvailability', 'returnSchedule', 'returnAvailability', 'departingSeats','returningSeats','totalPrice',
-        ));
+        return view('checkout');
 
 
     }

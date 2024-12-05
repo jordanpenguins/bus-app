@@ -1,6 +1,10 @@
 
 
 <x-app-layout>
+    @php
+        $checkout = Session::get('checkout');
+    @endphp
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -9,43 +13,48 @@
                         <h1 class="font-bold text-2xl mb-4">Booking Summary</h1>
                         <!-- Destination -->
                         <div class="mb-2">
-                            <span class="font-semibold">Route:</span> {{ $departureRoute->origin }} to {{ $departureRoute->destination }}
+                            <span class="font-semibold">Route:</span> {{ $checkout['departureRoute'] -> origin }} to {{ $checkout['departureRoute']->destination }}
                         </div>
                         <div class="mb-2">
-                            <span class="font-semibold">Depart Time:</span> {{ $selectedDepartureTime }}
+                            <span class="font-semibold">Depart Time:</span> {{ $checkout['departureTime']  }}
                         </div>
                         <div class="mb-2">
-                            <span class="font-semibold">Depart Date:</span> {{ $departureDate }}
+                            <span class="font-semibold">Depart Date:</span> {{ $checkout['departureDate']  }}
                         </div>
                         <div class="mb-2">
-                            <span class="font-semibold">Passenger Quantity:</span> {{ $passengerQty }}
+                            <span class="font-semibold">Passenger Quantity:</span> {{ $checkout['passengerQty']  }}
                         </div>
                         <div class="mb-2">
-                            <span class="font-semibold">Seats:</span> {{ $departingSeats }}
+                            <span class="font-semibold">Seats:</span> {{ $checkout['departingSeats'] }}
                         </div>
 
-                        
-                        
 
-                        @if ($returnSchedule)
+
+                        @if ($checkout['returnSchedule'])
                             <!-- Add a divider -->
                             <hr class="my-4 border-gray-300 dark:border-gray-700">
                             <div class="mb-2">
-                                <span class="font-semibold">Route:</span> {{ $returnRoute->origin }} to {{ $returnRoute ->destination }}
+                                <span class="font-semibold">Route:</span> {{ $checkout['returnRoute']->origin }} to {{ $checkout['returnRoute'] ->destination }}
                             </div>
                             <div class="mb-2">
-                                <span class="font-semibold">Return Time:</span> {{ $returnTime }}
+                                <span class="font-semibold">Return Time:</span> {{ $checkout['returnTime'] }}
                             </div>
                             <div class="mb-2">
-                                <span class="font-semibold">Return Date:</span> {{ $returnDate }}
+                                <span class="font-semibold">Return Date:</span> {{ $checkout['returnDate']}}
                             </div>
                             <div class="mb-2">
-                                <span class="font-semibold">Passenger Quantity:</span> {{ $passengerQty }}
+                                <span class="font-semibold">Passenger Quantity:</span> {{ $checkout['passengerQty']}}
+                            </div>
+                            
+                            <div class="mb-2">
+                                <span class="font-semibold">Returning Seats:</span> {{ $checkout['returningSeats'] }}
                             </div>
                         @endif
 
+                        <hr class="my-4 border-gray-300 dark:border-gray-700">
+
                         <div class="mb-2">
-                            <span class="font-semibold">Total Price:</span> {{ $totalPrice }}
+                            <span class="font-semibold">Total Price:</span> {{ $checkout['totalPrice'] }}
                         </div>
 
 
@@ -58,7 +67,7 @@
                         <div class ="mt-5">
                             <form action = "{{ route('checkout') }}" method = "POST">
                                 @csrf
-                                <input type ="hidden" name="passenger_qty" value = "{{ $passengerQty }}">
+                                <input type ="hidden" name="passenger_qty" value = "{{ $checkout['passengerQty']}}">
                                 <button type="submit" href="{{ route('checkout') }}" class="p-5 bg-lime-400 rounded">Checkout Now</a>
                             </form>
                         </div>
