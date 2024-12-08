@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->foreignId('schedule_id');
-            $table->foreignId('seat_id');
             $table->decimal('total_price',8,2);
             $table->enum('status', ['pending', 'confirmed', 'cancelled']);
             $table->timestamps();

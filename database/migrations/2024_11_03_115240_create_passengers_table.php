@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('passengers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('seat_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->string('name');
             $table->string('passport_number');
             $table->date('passport_expiry_date');

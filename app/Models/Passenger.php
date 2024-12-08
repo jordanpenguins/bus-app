@@ -16,10 +16,11 @@ class Passenger extends Model
         'booking_id',
         'passport_number',
         'passport_expiry_date',
+        'seat_id',
         'nationality'
     ];
 
-    public function booking() {
-        return $this->belongsTo(Booking::class);
+    public function seating() {
+        return $this->belongsTo(Seat::class);
     }
 }

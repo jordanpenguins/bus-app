@@ -6,6 +6,7 @@ use App\Models\Route;
 use App\Models\Schedule;
 use App\Models\Seat;
 use App\Models\Booking;
+use App\Models\Passenger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Stripe\Price;
@@ -116,11 +117,25 @@ class PurchaseController extends Controller
         // Get all seats for the bus
         $seats = Seat::where('bus_id', $schedule -> bus_id)->get();
 
-        // Get all booked seats for the schedule
-        $bookedSeats = Booking::where('schedule_id', $schedule->id)
+        // Get all booked seats for the schedule by iterating through the booking table and passenger to retrieve the seat_id
+        // that is available for the schedule 
+
+        $bookings = Booking::where('schedule_id', $schedule->id)
                             ->where('status', 'confirmed')
-                            ->pluck('seat_id')
-                            ->toArray();
+                            ->get();
+
+        // for each booking in bookings, we can collect the seats which are booked for the schedule
+
+        $bookedSeats = [];
+        foreach ($bookings as $booking) {
+            $passengers = Passenger::where('booking_id', $booking->id)->get();
+            foreach ($passengers as $passenger) {
+                $bookedSeats[] = $passenger->seat_id;
+            }
+        }
+        
+        Log::info($bookedSeats);
+                            
 
         // Determine available and unavailable seats (creates a temporary column when data is passed into the view)
         $seats->each(function ($seat) use ($bookedSeats) {
@@ -152,6 +167,7 @@ class PurchaseController extends Controller
         $returnPrice = 195.00;
         $returnSchedule = null;
         $returnAvailability = null;
+        $returnSeatsNumbers = null;
 
     
         // Retrieve the departure schedule and availability
@@ -171,13 +187,16 @@ class PurchaseController extends Controller
         if ((int)$passengerQty > 0) {
             $adultPrice = $departureSchedule -> prices() -> where('type','adult') -> first() ;
             $totalAdultPrice = $this-> getProductPrice($adultPrice->priceID);
+            $price = number_format((int)$passengerQty * ($totalAdultPrice -> amount / 100),2);
+            $totalPriceString = strtoupper($totalAdultPrice -> currency) . (string) $price ;
 
-
-            $totalPrice = strtoupper($totalAdultPrice -> currency) . (string) (number_format((int)$passengerQty * ($totalAdultPrice -> amount / 100),2)) ;
+            //get all the seat number
+            $departureSeatsIds = explode(',', $departingSeats);
+            $departureSeatsNumbers = implode(', ',Seat::whereIn('id', $departureSeatsIds)->pluck('seat_number')->toArray() );
+            Log::info($departureSeatsNumbers);
         }
 
         // child ticket (future implementation)
-        
 
         if ($ticketType === 'two_way') {
             $formattedReturnDate = date("Y-m-d", strtotime($returnDate));
@@ -190,15 +209,17 @@ class PurchaseController extends Controller
 
             //calculate the total price for return
             $totalPrice = (int)$passengerQty * $returnPrice;
-            $totalPrice = strtoupper($totalAdultPrice -> currency) . (string) (number_format((int)$passengerQty * ($totalAdultPrice -> amount / 100),2)) ;
-            
+            $totalPriceString = 'RM' . $totalPrice;
 
+            // get all the seat number for returning customers
+            $returnSeatsIds = explode(',', $returningSeats);
+            $returnSeatsNumbers = implode(', ', Seat::whereIn('id', $returnSeatsIds)->pluck('seat_number')->toArray()) ;
+            Log::info($returnSeatsNumbers);
+            
         }
 
         $departureRoute = Route::where('id',$departureRoute)->first();
-
-        
-
+    
         // return price should be fixed RM195 OR 60SGD 
         Session::put('checkout', [
             'ticketType' => $ticketType,
@@ -215,8 +236,12 @@ class PurchaseController extends Controller
             'returnSchedule' => $returnSchedule,
             'returnAvailability' => $returnAvailability,
             'departingSeats' => $departingSeats,
+            'departingSeatNumbers' => $departureSeatsNumbers,
             'returningSeats' => $returningSeats,
-            'totalPrice' => $totalPrice,
+            'returningSeatNumbers' => $returnSeatsNumbers,
+            'totalPrice' => $totalPriceString,
+            'price' => $price,
+
         ]);
 
         return view('checkout');
