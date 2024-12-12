@@ -1,4 +1,4 @@
-<x-app-layout>
+{{-- <x-app-layout>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-10">
@@ -17,20 +17,17 @@
 
                 <!-- Your booking number -->
                 <div class="text-center mt-2 text-gray-500">
-                    {{-- Your booking reference: {{ $bookingID }} --}}
+                    Your booking reference: {{ $bookingID }}
                 </div>
 
+               
                  <!-- Go back home page navigation -->
-                <div class="flex justify-center items-center mt-2 flex-row">
-                    <div class="p-3">
-                        <a class="text-blue-500 underline">View your booking</a>
-                    </div>
-                    <div class ="p-3">
-                        <a href = "{{ route('dashboard') }}" class="text-blue-500 underline">Go back to home page</a>
-                    </div>
+                 <div class="text-center mt-4">
+                    <a class="text-blue-500 underline">Go back to home page</a>
                 </div>
+
 
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-app-layout> --}}

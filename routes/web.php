@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\StripeController;
 use Illuminate\Support\Facades\Route;
+use Laravel\Cashier\Http\Controllers\WebhookController;
+use Stripe\Webhook;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,6 +30,8 @@ Route::get('/return-shedule', [PurchaseController::class, 'schedule']) -> middle
 Route::get('/checkout-page', [PurchaseController::class, 'checkout']) ->middleware(['auth', 'verified'])->name('checkout-page');
 
 Route::post('/checkout', [StripeController::class, 'checkout']) ->middleware(['auth', 'verified'])->name('checkout');
+
+Route::post('/stripe/webhook', [WebhookController::class, 'handleWebhook']);
 
 // checkout success 
 Route::get('/checkout-success', [StripeController::class, 'success']) ->middleware(['auth', 'verified'])->name('checkout-success');

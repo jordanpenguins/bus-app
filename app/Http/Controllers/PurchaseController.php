@@ -182,7 +182,7 @@ class PurchaseController extends Controller
         $departAvailability = $this->checkSeatAvailability($departureSchedule);
         
         // calculate the total price
-        Log::info($departureSchedule);
+       
       
         if ((int)$passengerQty > 0) {
             $adultPrice = $departureSchedule -> prices() -> where('type','adult') -> first() ;
@@ -193,7 +193,7 @@ class PurchaseController extends Controller
             //get all the seat number
             $departureSeatsIds = explode(',', $departingSeats);
             $departureSeatsNumbers = implode(', ',Seat::whereIn('id', $departureSeatsIds)->pluck('seat_number')->toArray() );
-            Log::info($departureSeatsNumbers);
+         
         }
 
         // child ticket (future implementation)
@@ -208,17 +208,18 @@ class PurchaseController extends Controller
             $returnRoute = Route::where('id',$returnRoute)->first();
 
             //calculate the total price for return
-            $totalPrice = (int)$passengerQty * $returnPrice;
-            $totalPriceString = 'RM' . $totalPrice;
+            $price = (int)$passengerQty * $returnPrice;
+            $totalPriceString = 'RM' . $price;
 
             // get all the seat number for returning customers
             $returnSeatsIds = explode(',', $returningSeats);
             $returnSeatsNumbers = implode(', ', Seat::whereIn('id', $returnSeatsIds)->pluck('seat_number')->toArray()) ;
-            Log::info($returnSeatsNumbers);
+            
             
         }
 
         $departureRoute = Route::where('id',$departureRoute)->first();
+
     
         // return price should be fixed RM195 OR 60SGD 
         Session::put('checkout', [
@@ -241,7 +242,6 @@ class PurchaseController extends Controller
             'returningSeatNumbers' => $returnSeatsNumbers,
             'totalPrice' => $totalPriceString,
             'price' => $price,
-
         ]);
 
         return view('checkout');
