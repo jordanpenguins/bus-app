@@ -20,7 +20,6 @@ class StripeController extends Controller
     public function checkout(Request $request) {
 
         // put passengers details into the session
-        Log::info($request);
         $metadata = [];
         $stripePriceId = 'price_1QRAnNHrbBfQ3SJwye8gCgKf';
 
@@ -36,11 +35,11 @@ class StripeController extends Controller
         // TO DO 
 
         // hardcode passenger details into the booking
-
+      
         // Departure Booking details
         $bookingDetails = [
             'user_id' => $request->user()->id,
-            'schedule_id' => $checkoutSession['departureRoute']->id,
+            'schedule_id' => $checkoutSession['departureSchedule']->id,
             'total_price' => (float)$checkoutSession['price'],
             'status' => 'confirmed',
         ];
@@ -49,7 +48,9 @@ class StripeController extends Controller
         // if return schedule exists, create a booking session for that as well
         if (isset($checkoutSession['returnRoute'])) {
             // merge the return schedule id into the booking details since other information remains the same anyways
-            $bookingDetails['return_schedule_id'] = $checkoutSession['returnRoute']->id; 
+
+            $bookingDetails['return_schedule_id'] = $checkoutSession['returnSchedule'] -> id; 
+           
             // convert return seats into an array
             $returnSeats = explode(',', $checkoutSession['returningSeats']);
             $returnPassengerDetails = [];
@@ -57,6 +58,16 @@ class StripeController extends Controller
             for ($i = 1; $i < count($returnSeats) + 1; $i++) {
                 $formattedPassportExpiry = date("Y-m-d", strtotime($passengerSession["expiry-date-$i"]));
                 $seat = (int)$returnSeats[$i-1];
+
+
+                if ($seat <= 0) {
+                    Log::error("Invalid seat ID: $seat for passenger $i");
+                    continue; // Skip this iteration if the seat ID is invalid
+                }
+
+
+
+
                 $returnPassengerDetails[] = (object)[
                     "name-$i" => $passengerSession["name-$i"],
                     "seat-id-$i" => $seat,

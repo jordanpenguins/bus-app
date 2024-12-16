@@ -9,7 +9,10 @@
 }
 
 .unavailable-seat {
-    filter: saturate(500%);
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity:0.5;
+    
 }
 
 .seat {

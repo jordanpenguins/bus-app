@@ -16,6 +16,8 @@
                     <div class="mt-5 ">
                         <!-- Display the route title over here -->
 
+                        {{ $firstDepartSchedule -> id }}
+
 
                         <!-- Iterate through the schedule list to display other depature times that fall on the same date -->
                         @foreach ($schedule as $schedule)
@@ -47,21 +49,15 @@
                             @foreach ($departAvailability as $seat)
                                 <div class="flex justify-center items-center">
                                     <label>
-                                        <input type="checkbox" name="seats[]" value="{{ $seat->id }}" class="hidden peer {{ $seat->available ? '' : 'disabled'}}">
-                                        <img src="{{ asset('seat.png') }}" alt="seat" class="unavailable-seat h-10 w-10 object-cover peer-checked:border-blue-500 peer-checked:border-4  ">
+                                        <input  type="checkbox" name="seats[]" value="{{ $seat->id }}" class="hidden peer " {{ $seat->available ? '' : 'disabled' }}>
+                                        <img src="{{ asset('seat.png') }}" alt="seat" class="h-10 w-10 object-cover peer-checked:border-blue-500 peer-checked:border-4 {{ $seat -> available ? '' : 'opacity-50 cursor-not-allowed'}}">
                                     </label>
                                 </div>
                             @endforeach
+
                         </div>
-
-                        
-
                     </div>
-
                     <div class ="mt-5 p-3 border-red-700 bg-red-200 text-red-600 hidden" id="message-label"> </div>
-
-                
-                    
 
                     <!-- This is so that if return date does not exist, then redirect them to the next checkout page -->
                     @if ($returnSchedule) 
@@ -69,6 +65,7 @@
                                 'ticket_type' => request('ticket_type'),
                                 'departure_date' => request('departure_date'),
                                 'departure_route' => request('departure_route'),
+                                'departure_schedule' => $firstDepartSchedule->id,
                                 'departure_time' => $firstDepartSchedule->departure_time,
                                 'selected_departure_time' => $firstDepartSchedule->departure_time,
                                 'departing_seats' => implode(',', request('departing_seats', [])), 
@@ -84,10 +81,11 @@
                         <x-nav-link  class="hidden" id="next-link" :href="route('checkout-page', [
                                 'ticket_type' => request('ticket_type') ,
                                 'departure_date' => request('departure_date'),
-                                'departure_route' => request('departure_route'),
+                                'departure_route' => $firstDepartSchedule ->id,
+                                'departure_schedule' => $firstDepartSchedule ->id,
                                 'departure_time' => $firstDepartSchedule->departure_time,
                                 'selected_departure_time' => $firstDepartSchedule->departure_time,
-                                'departing_seats' => implode(',', request('seats', [])),
+                                'departing_seats' => implode(',', request('departing_seats', [])),
                                 'return_route' => request('return_route'),
                                 'return_date' => request('return_date'),
                                 'passenger_qty' => $passengerQty,

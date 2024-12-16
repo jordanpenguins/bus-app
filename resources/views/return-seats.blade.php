@@ -15,12 +15,17 @@
 
 
                     <div class = "mt-5">
+
+                        {{ $firstReturnSchedule -> id }}
+
+
                         <!-- Iterate through the return schedule list to display other return times that fall on the same date -->
                         @foreach ($returnSchedule as $returnScheduleItem)
                             <x-nav-link :href="route('return-search', [
                                 'ticket_type' => request('ticket_type'),
                                 'departure_date' => request('departure_date'),
                                 'departure_route' => request('departure_route'),
+                                'departing_seats' => request('departing_seats'),
                                 'departure_time' => request('departure_time'),
                                 'return_route' => request('return_route'),
                                 'return_date' => request('return_date'),
@@ -43,7 +48,7 @@
                                 <div class="flex justify-center items-center">
                                     <label>
                                         <input type="checkbox" name="return_seats[]" value="{{ $seat->id }}" class="hidden peer {{ $seat->available ? '' : 'disabled' }}">
-                                        <img src="{{ asset('seat.png') }}" alt="seat" class="unavailable-seat h-10 w-10 object-cover peer-checked:border-blue-500 peer-checked:border-4 {{ $seat->available ? '' : 'unavailable-seat' }}">
+                                        <img src="{{ asset('seat.png') }}" alt="seat" class=" h-10 w-10 object-cover peer-checked:border-blue-500 peer-checked:border-4 {{ $seat->available ? '' : 'opacity-50 cursor-not-allowed' }}">
                                     </label>
                                 </div>
                             @endforeach
@@ -57,6 +62,8 @@
                         'ticket_type' => request('ticket_type'),
                         'departure_date' => request('departure_date'),
                         'departure_route' => request('departure_route'),
+                        'departure_schedule' =>$firstDepartSchedule->id,
+                        'return_schedule' => $firstReturnSchedule->id,
                         'departure_time' => $firstDepartSchedule->departure_time,
                         'departing_seats' => request('departing_seats'), 
                         'returning_seats' => implode(',', request('returning_seats', [])),

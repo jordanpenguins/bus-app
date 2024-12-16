@@ -61,11 +61,10 @@ class PurchaseController extends Controller
         
         // pass in the first schedule_id into the view by passing the scheduled date and departure time to
         $departAvailability = $this->checkSeatAvailability($firstDepartSchedule);
-        Log::info($departAvailability);
+       
         
         // check if departure and return exist 
         if ($ticketType === 'two_way') {
-            Log::info($returnRoute);
 
             $routes = Route::find($returnRoute);
             if ($routes->count() <= 0) {
@@ -91,12 +90,11 @@ class PurchaseController extends Controller
             }
             
             $returnAvailability = $this->checkSeatAvailability($firstReturnSchedule);
-            Log::info($returnAvailability);
             if ($selectedDepartureTime) {
-                return view ('return-seats', compact('schedule','returnSchedule','firstReturnSchedule','firstDepartSchedule','returnAvailability','departAvailability','passengerQty','selectedReturnTime','departureRouteName','returnRouteName'));
+                return view ('return-seats', compact('schedule','returnSchedule','firstReturnSchedule','firstDepartSchedule','returnAvailability','departAvailability','passengerQty','selectedReturnTime','departureRouteName','returnRouteName','departingSeats'));
 
             } else {
-                return view ('seats', compact('schedule','returnSchedule','firstReturnSchedule','firstDepartSchedule','returnAvailability','departAvailability','passengerQty','returnSchedule','departureRouteName','returnRouteName'));
+                return view ('seats', compact('schedule','returnSchedule','firstReturnSchedule','firstDepartSchedule','returnAvailability','departAvailability','passengerQty','returnSchedule','departureRouteName','returnRouteName','departingSeats'));
 
             }
             
@@ -120,11 +118,13 @@ class PurchaseController extends Controller
         // Get all booked seats for the schedule by iterating through the booking table and passenger to retrieve the seat_id
         // that is available for the schedule 
 
+
         $bookings = Booking::where('schedule_id', $schedule->id)
                             ->where('status', 'confirmed')
                             ->get();
 
         // for each booking in bookings, we can collect the seats which are booked for the schedule
+   
 
         $bookedSeats = [];
         foreach ($bookings as $booking) {
@@ -134,7 +134,7 @@ class PurchaseController extends Controller
             }
         }
         
-        Log::info($bookedSeats);
+        
                             
 
         // Determine available and unavailable seats (creates a temporary column when data is passed into the view)
@@ -146,18 +146,21 @@ class PurchaseController extends Controller
     }   
 
     public function checkout(Request $request)
-    {
-        Log::info($request->all());
+    {   
+       Log::info($request->all());
         $ticketType = $request->ticket_type;
         $departureDate = $request -> departure_date;
         $departureRoute = $request-> departure_route;
+        $departureScheduleID = $request -> departure_schedule;
         $departureTime = $request -> departure_time;
         $selectedDepartureTime = $request -> selected_departure_time;
         // departing seats
         $departingSeats = $request -> departing_seats; 
+
         
 
         $returnRoute = $request->return_route;
+        $returnScheduleID = $request -> return_schedule; 
         $returnDate = $request -> return_date;
         $returnTime = $request -> return_time;
         $selectedReturnTime = $request -> selected_return_time;
@@ -165,19 +168,18 @@ class PurchaseController extends Controller
         // returning seats
         $returningSeats = $request -> returning_seats;
         $returnPrice = 195.00;
-        $returnSchedule = null;
         $returnAvailability = null;
         $returnSeatsNumbers = null;
+        $returnSchedule = null;
+        
 
     
         // Retrieve the departure schedule and availability
-        $formattedDepartureDate = date("Y-m-d", strtotime($departureDate));
-        $departureSchedule = Schedule::where('route_id', $departureRoute)
-        ->whereDate('scheduled_date', $formattedDepartureDate)
-        ->whereTime('departure_time', $selectedDepartureTime)
+        $departureSchedule = Schedule::where('id', $departureScheduleID)
         ->first();
 
-        // Log::info($departureSchedule);
+        Log::info($departureSchedule);
+
 
         $departAvailability = $this->checkSeatAvailability($departureSchedule);
         
@@ -199,11 +201,8 @@ class PurchaseController extends Controller
         // child ticket (future implementation)
 
         if ($ticketType === 'two_way') {
-            $formattedReturnDate = date("Y-m-d", strtotime($returnDate));
-            $returnSchedule = Schedule::where('route_id', $returnRoute)
-                ->whereDate('scheduled_date', $formattedReturnDate)
-                ->whereTime('departure_time', $returnTime)
-                ->first();
+            Log::info($returnScheduleID);
+            $returnSchedule = Schedule::where('id', $returnScheduleID) -> first(); // TO FIX ;
             $returnAvailability = $this->checkSeatAvailability($returnSchedule);
             $returnRoute = Route::where('id',$returnRoute)->first();
 
@@ -220,21 +219,24 @@ class PurchaseController extends Controller
 
         $departureRoute = Route::where('id',$departureRoute)->first();
 
+        Log::info($departureSchedule);
+
     
         // return price should be fixed RM195 OR 60SGD 
         Session::put('checkout', [
             'ticketType' => $ticketType,
             'departureDate' => $departureDate,
             'departureRoute' => $departureRoute,
+            'departureSchedule' => $departureSchedule,
             'departureTime' => $departureTime,
             'selectedDepartureTime' => $selectedDepartureTime,
+            'returnSchedule' => $returnSchedule,
             'returnRoute' => $returnRoute,
             'returnDate' => $returnDate,
             'returnTime' => $returnTime,
             'passengerQty' => $passengerQty,
             'departureSchedule' => $departureSchedule,
             'departAvailability' => $departAvailability,
-            'returnSchedule' => $returnSchedule,
             'returnAvailability' => $returnAvailability,
             'departingSeats' => $departingSeats,
             'departingSeatNumbers' => $departureSeatsNumbers,
@@ -263,7 +265,7 @@ class PurchaseController extends Controller
         // Fetch the price details
         Stripe::setApiKey(env('STRIPE_SECRET'));
         $price =  Price::retrieve($priceId);
-        Log::info($price);
+        
 
         $amount = $price -> unit_amount;
         $currency = $price -> currency;

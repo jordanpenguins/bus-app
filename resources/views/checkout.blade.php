@@ -25,7 +25,7 @@
                             <span class="font-semibold">Passenger Quantity:</span> {{ $checkout['passengerQty']  }}
                         </div>
                         <div class="mb-2">
-                            <span class="font-semibold">Seats:</span> {{ $checkout['departingSeatNumbers'] }}
+                            <span class="font-semibold">Seats:</span> {{ $checkout['departingSeats'] }}
                         </div>
 
 

@@ -38,7 +38,7 @@ class HandleStripeWebhook
 
             $bookingDetailsJson = $metadata['booking_details'];
             $passengerDetailsJson = $metadata['passenger_details'];
-            $returnPassengerDetailsJson = $metadata['return_passenger_details'];
+            
             $numberOfPassengers = $metadata['number_of_passengers'];
 
             $bookingDetails = json_decode($bookingDetailsJson, true);
@@ -57,15 +57,30 @@ class HandleStripeWebhook
                 'status' => $bookingDetails['status'],
             ]);
 
+            // create passenger info
+            foreach ($passengerDetails as $index => $passenger) {
+                // Since $index starts from 0, we need to increment it by 1 to start from 1
+                $i = $index + 1;
+                $formattedPassportExpiry = date("Y-m-d", strtotime($passenger->{"passport-expiry-date-$i"}));
+                \App\Models\Passenger::create([
+                    'booking_id' => $booking->id,
+                    'name' => $passenger->{"name-$i"},
+                    'seat_id' => (int)$passenger->{"seat-id-$i"},
+                    'passport_number' => $passenger->{"passport-number-$i"},
+                    'passport_expiry_date' => $formattedPassportExpiry,
+                    'nationality' => $passenger->{"nationality-$i"},
+                ]);
+            }
+
             // create the booking information if there is a return schedule booked by the passenger
             if (isset($bookingDetails['return_schedule_id'])) {
+                $returnPassengerDetailsJson = $metadata['return_passenger_details'];
                 $returnBooking = Booking::create([
                     'user_id' => $bookingDetails['user_id'],
                     'schedule_id' => $bookingDetails['return_schedule_id'],
                     'total_price' => $bookingDetails['total_price'],
                     'status' => $bookingDetails['status'],
                 ]);
-
 
                 $returnPassengerDetails = json_decode($returnPassengerDetailsJson);
                 // create passenger info for return schedule
@@ -84,22 +99,6 @@ class HandleStripeWebhook
                 }
 
 
-            }
-
-
-            // create passenger info
-            foreach ($passengerDetails as $index => $passenger) {
-                // Since $index starts from 0, we need to increment it by 1 to start from 1
-                $i = $index + 1;
-                $formattedPassportExpiry = date("Y-m-d", strtotime($passenger->{"passport-expiry-date-$i"}));
-                \App\Models\Passenger::create([
-                    'booking_id' => $booking->id,
-                    'name' => $passenger->{"name-$i"},
-                    'seat_id' => (int)$passenger->{"seat-id-$i"},
-                    'passport_number' => $passenger->{"passport-number-$i"},
-                    'passport_expiry_date' => $formattedPassportExpiry,
-                    'nationality' => $passenger->{"nationality-$i"},
-                ]);
             }
 
             // Handle the incoming event...
